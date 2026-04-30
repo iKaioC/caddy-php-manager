@@ -30,20 +30,26 @@ window.I18N = {
             'setup.title': 'Configuration required',
             'setup.description': 'Set the executable paths before starting the services.',
 
+            'external.title': 'External service detected',
+            'external.description': 'One or more configured ports are already in use by a process not started by this app. Stop the external process or change the configured ports before starting services.',
+
             'status.phpService': 'PHP-CGI service',
             'status.caddyService': 'Caddy server',
             'status.localUrl': 'Local URL',
             'status.offline': 'Offline',
             'status.online': 'Online',
+            'status.external': 'External',
             'status.missing': 'Missing',
             'status.notReady': 'Not ready',
             'status.ready': 'Ready',
 
             'controls.title': 'Controls',
             'controls.description': 'Start, stop or restart the configured services.',
+            'controls.externalDescription': 'External services were detected. Stop them manually or change the configured ports before starting.',
             'controls.start': 'Start',
             'controls.stop': 'Stop',
             'controls.restart': 'Restart',
+            'controls.refresh': 'Refresh status',
 
             'logs.title': 'Console',
             'logs.description': 'Live output and application events.',
@@ -82,6 +88,7 @@ window.I18N = {
             'log.startFallback': '[system] Start services requested.',
             'log.stopFallback': '[system] Stop services requested.',
             'log.restartFallback': '[system] Restart services requested.',
+            'log.statusRefreshed': '[system] Runtime status refreshed.',
             'log.settingsOpened': '[settings] Settings page opened.',
             'log.languageChanged': '[settings] Language changed to English.',
             'log.logsCleared': '[system] Logs cleared.'
@@ -110,20 +117,26 @@ window.I18N = {
             'setup.title': 'Configuração necessária',
             'setup.description': 'Defina os caminhos dos executáveis antes de iniciar os serviços.',
 
+            'external.title': 'Serviço externo detectado',
+            'external.description': 'Uma ou mais portas configuradas já estão em uso por um processo que não foi iniciado por este app. Pare o processo externo manualmente ou altere as portas configuradas antes de iniciar os serviços.',
+
             'status.phpService': 'Serviço PHP-CGI',
             'status.caddyService': 'Servidor Caddy',
             'status.localUrl': 'URL local',
             'status.offline': 'Offline',
             'status.online': 'Online',
+            'status.external': 'Externo',
             'status.missing': 'Pendente',
             'status.notReady': 'Não pronto',
             'status.ready': 'Pronto',
 
             'controls.title': 'Controles',
             'controls.description': 'Inicie, pare ou reinicie os serviços configurados.',
+            'controls.externalDescription': 'Serviços externos foram detectados. Pare-os manualmente ou altere as portas configuradas antes de iniciar.',
             'controls.start': 'Iniciar',
             'controls.stop': 'Parar',
             'controls.restart': 'Reiniciar',
+            'controls.refresh': 'Atualizar status',
 
             'logs.title': 'Console',
             'logs.description': 'Saída em tempo real e eventos da aplicação.',
@@ -162,6 +175,7 @@ window.I18N = {
             'log.startFallback': '[sistema] Início dos serviços solicitado.',
             'log.stopFallback': '[sistema] Parada dos serviços solicitada.',
             'log.restartFallback': '[sistema] Reinício dos serviços solicitado.',
+            'log.statusRefreshed': '[sistema] Status dos serviços atualizado.',
             'log.settingsOpened': '[configurações] Página de configurações aberta.',
             'log.languageChanged': '[configurações] Idioma alterado para Português Brasil.',
             'log.logsCleared': '[sistema] Logs limpos.'

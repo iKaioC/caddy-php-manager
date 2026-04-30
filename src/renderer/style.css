@@ -56,6 +56,11 @@ button {
     cursor: pointer;
 }
 
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
 .app {
     display: flex;
     height: 100vh;
@@ -304,6 +309,11 @@ button {
     display: none;
 }
 
+.external-notice {
+    border-color: #d8b15d;
+    background: #fff4d8;
+}
+
 .notice-symbol {
     display: grid;
     width: 24px;
@@ -450,6 +460,14 @@ button {
     color: var(--success);
 }
 
+.service-value.warning {
+    color: var(--warning);
+}
+
+.service-value.danger {
+    color: var(--danger);
+}
+
 .dot {
     width: 7px;
     height: 7px;
@@ -466,6 +484,10 @@ button {
 
 .dot-success {
     background: var(--success);
+}
+
+.dot-warning {
+    background: var(--warning);
 }
 
 .controls-panel {
@@ -505,7 +527,7 @@ button {
     color: #fff;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     background: var(--primary-hover);
 }
 
@@ -515,7 +537,7 @@ button {
     color: var(--danger);
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
     background: #ffe4e0;
 }
 
@@ -525,7 +547,7 @@ button {
     color: var(--text);
 }
 
-.btn-light:hover {
+.btn-light:hover:not(:disabled) {
     background: #f3f4f6;
 }
 

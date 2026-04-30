@@ -15,9 +15,14 @@ window.ServicesPage = (() => {
         }
     }
 
-    async function loadRuntimeStatus() {
+    async function loadRuntimeStatus(options = {}) {
         const status = await window.manager.getServiceStatus();
+
         window.StatusView.setRuntimeStatus(status);
+
+        if (options.log) {
+            window.LogsView.append(window.I18nRuntime.get('log.statusRefreshed'));
+        }
     }
 
     function bind() {
@@ -40,6 +45,10 @@ window.ServicesPage = (() => {
                 () => window.manager.restartServices(),
                 'log.restartFallback'
             );
+        });
+
+        dom.refreshStatus.addEventListener('click', () => {
+            loadRuntimeStatus({ log: true });
         });
     }
 

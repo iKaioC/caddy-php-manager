@@ -4,10 +4,30 @@ window.StatusView = (() => {
     const state = {
         configReady: false,
         runtime: {
-            php: false,
-            caddy: false
+            phpState: 'offline',
+            caddyState: 'offline'
         }
     };
+
+    function isOnline(status) {
+        return status === 'online';
+    }
+
+    function isExternal(status) {
+        return status === 'external';
+    }
+
+    function hasExternalService() {
+        return isExternal(state.runtime.phpState) || isExternal(state.runtime.caddyState);
+    }
+
+    function hasManagedServiceOnline() {
+        return isOnline(state.runtime.phpState) || isOnline(state.runtime.caddyState);
+    }
+
+    function allServicesOffline() {
+        return state.runtime.phpState === 'offline' && state.runtime.caddyState === 'offline';
+    }
 
     function renderConfig() {
         const i18n = window.I18nRuntime;
@@ -28,42 +48,84 @@ window.StatusView = (() => {
     }
 
     function renderRuntime() {
-        renderSidebarStatus(dom.phpSidebarStatus, state.runtime.php);
-        renderSidebarStatus(dom.caddySidebarStatus, state.runtime.caddy);
+        renderSidebarStatus(dom.phpSidebarStatus, state.runtime.phpState);
+        renderSidebarStatus(dom.caddySidebarStatus, state.runtime.caddyState);
 
-        renderServiceStatus(dom.phpServiceStatus, state.runtime.php);
-        renderServiceStatus(dom.caddyServiceStatus, state.runtime.caddy);
+        renderServiceStatus(dom.phpServiceStatus, state.runtime.phpState);
+        renderServiceStatus(dom.caddyServiceStatus, state.runtime.caddyState);
+
+        renderExternalNotice();
+        renderControls();
     }
 
-    function renderSidebarStatus(target, isOnline) {
-        const i18n = window.I18nRuntime;
-
-        target.classList.toggle('success', isOnline);
-        target.classList.toggle('danger', !isOnline);
-        target.textContent = isOnline
-            ? i18n.get('status.online')
-            : i18n.get('status.offline');
+    function renderExternalNotice() {
+        dom.externalNotice.classList.toggle('hidden', !hasExternalService());
     }
 
-    function renderServiceStatus(target, isOnline) {
-        const i18n = window.I18nRuntime;
+    function renderControls() {
+        const externalDetected = hasExternalService();
+        const managedOnline = hasManagedServiceOnline();
+        const offline = allServicesOffline();
 
-        target.classList.toggle('success', isOnline);
-        target.classList.toggle('muted', !isOnline);
-        target.innerHTML = isOnline
-            ? `<span class="dot dot-success"></span><span>${i18n.get('status.online')}</span>`
-            : `<span class="dot dot-danger"></span><span>${i18n.get('status.offline')}</span>`;
+        dom.startServices.disabled = externalDetected || !state.configReady || !offline;
+        dom.stopServices.disabled = externalDetected || !managedOnline;
+        dom.restartServices.disabled = externalDetected || !managedOnline;
+
+        dom.controlsDescription.textContent = externalDetected
+            ? window.I18nRuntime.get('controls.externalDescription')
+            : window.I18nRuntime.get('controls.description');
+    }
+
+    function getStatusViewModel(status) {
+        if (status === 'online') {
+            return {
+                className: 'success',
+                dotClass: 'dot-success',
+                label: window.I18nRuntime.get('status.online')
+            };
+        }
+
+        if (status === 'external') {
+            return {
+                className: 'warning',
+                dotClass: 'dot-warning',
+                label: window.I18nRuntime.get('status.external')
+            };
+        }
+
+        return {
+            className: 'danger',
+            dotClass: 'dot-danger',
+            label: window.I18nRuntime.get('status.offline')
+        };
+    }
+
+    function renderSidebarStatus(target, status) {
+        const view = getStatusViewModel(status);
+
+        target.classList.remove('success', 'warning', 'danger');
+        target.classList.add(view.className);
+        target.textContent = view.label;
+    }
+
+    function renderServiceStatus(target, status) {
+        const view = getStatusViewModel(status);
+
+        target.classList.remove('success', 'warning', 'muted', 'danger');
+        target.classList.add(view.className);
+        target.innerHTML = `<span class="dot ${view.dotClass}"></span><span>${view.label}</span>`;
     }
 
     function setConfigReady(isReady) {
         state.configReady = Boolean(isReady);
         renderConfig();
+        renderControls();
     }
 
     function setRuntimeStatus(status) {
         state.runtime = {
-            php: Boolean(status?.php),
-            caddy: Boolean(status?.caddy)
+            phpState: status?.phpState || (status?.php ? 'online' : 'offline'),
+            caddyState: status?.caddyState || (status?.caddy ? 'online' : 'offline')
         };
 
         renderRuntime();

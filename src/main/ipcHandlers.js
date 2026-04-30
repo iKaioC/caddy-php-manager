@@ -93,7 +93,11 @@ function registerIpcHandlers({ app, getMainWindow, serviceManager }) {
     });
 
     ipcMain.handle('services:status', async () => {
-        return serviceManager.getStatus();
+        const loaded = settingsStore.load();
+
+        return serviceManager.getStatus(
+            loaded.hasSavedSettings ? loaded.settings : null
+        );
     });
 
     ipcMain.handle('services:start', async () => {
@@ -103,7 +107,7 @@ function registerIpcHandlers({ app, getMainWindow, serviceManager }) {
             return {
                 ok: false,
                 message: '[services] Cannot start. Save your settings first.',
-                status: serviceManager.getStatus()
+                status: await serviceManager.getStatus()
             };
         }
 
@@ -114,7 +118,7 @@ function registerIpcHandlers({ app, getMainWindow, serviceManager }) {
                 ok: false,
                 message: '[services] Cannot start. Settings are missing or invalid.',
                 errors: validation.errors,
-                status: serviceManager.getStatus()
+                status: await serviceManager.getStatus(loaded.settings)
             };
         }
 
@@ -132,7 +136,7 @@ function registerIpcHandlers({ app, getMainWindow, serviceManager }) {
             return {
                 ok: false,
                 message: '[services] Cannot restart. Save your settings first.',
-                status: serviceManager.getStatus()
+                status: await serviceManager.getStatus()
             };
         }
 
@@ -143,7 +147,7 @@ function registerIpcHandlers({ app, getMainWindow, serviceManager }) {
                 ok: false,
                 message: '[services] Cannot restart. Settings are missing or invalid.',
                 errors: validation.errors,
-                status: serviceManager.getStatus()
+                status: await serviceManager.getStatus(loaded.settings)
             };
         }
 

@@ -9,6 +9,7 @@ window.AppDom = {
     navigationButtons: document.querySelectorAll('[data-page-target]'),
 
     setupNotice: document.getElementById('setupNotice'),
+    externalNotice: document.getElementById('externalNotice'),
     openSettingsFromNotice: document.getElementById('openSettingsFromNotice'),
 
     phpSidebarStatus: document.getElementById('phpSidebarStatus'),
@@ -23,6 +24,8 @@ window.AppDom = {
     caddyServiceStatus: document.getElementById('caddyServiceStatus'),
     localUrlStatus: document.getElementById('localUrlStatus'),
 
+    controlsDescription: document.getElementById('controlsDescription'),
+
     settingsFeedback: document.getElementById('settingsFeedback'),
     settingsFeedbackTitle: document.getElementById('settingsFeedbackTitle'),
     settingsFeedbackMessage: document.getElementById('settingsFeedbackMessage'),
@@ -30,6 +33,7 @@ window.AppDom = {
     startServices: document.getElementById('startServices'),
     stopServices: document.getElementById('stopServices'),
     restartServices: document.getElementById('restartServices'),
+    refreshStatus: document.getElementById('refreshStatus'),
 
     detectSettings: document.getElementById('detectSettings'),
     testSettings: document.getElementById('testSettings'),

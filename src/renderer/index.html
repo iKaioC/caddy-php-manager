@@ -89,6 +89,17 @@
                         </div>
                     </section>
 
+                    <section id="externalNotice" class="notice external-notice hidden">
+                        <div class="notice-symbol">!</div>
+
+                        <div>
+                            <strong data-i18n="external.title">External service detected</strong>
+                            <span data-i18n="external.description">
+                                One or more configured ports are already in use by a process not started by this app.
+                            </span>
+                        </div>
+                    </section>
+
                     <section class="panel">
                         <div class="panel-header">
                             <h3>Services</h3>
@@ -136,7 +147,7 @@
                     <section class="panel controls-panel">
                         <div>
                             <h3 data-i18n="controls.title">Controls</h3>
-                            <p data-i18n="controls.description">Start, stop or restart the configured services.</p>
+                            <p id="controlsDescription" data-i18n="controls.description">Start, stop or restart the configured services.</p>
                         </div>
 
                         <div class="control-actions">
@@ -150,6 +161,10 @@
 
                             <button id="restartServices" class="btn btn-light" type="button" data-i18n="controls.restart">
                                 Restart
+                            </button>
+
+                            <button id="refreshStatus" class="btn btn-light" type="button" data-i18n="controls.refresh">
+                                Refresh status
                             </button>
                         </div>
                     </section>
