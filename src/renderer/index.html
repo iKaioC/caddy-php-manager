@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Caddy PHP Manager</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+    <div class="app">
+        <header class="app-header">
+            <div class="app-title">
+                <div class="app-mark">CP</div>
+
+                <div>
+                    <h1 data-i18n="app.name">Caddy PHP Manager</h1>
+                    <p data-i18n="app.description">Local Caddy + PHP-CGI/FastCGI manager.</p>
+                </div>
+            </div>
+
+            <div class="app-tools">
+                <label class="language-select">
+                    <span data-i18n="language.label">Language</span>
+
+                    <select id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="pt-BR">Português Brasil</option>
+                    </select>
+                </label>
+            </div>
+        </header>
+
+        <div class="app-layout">
+            <aside class="app-sidebar">
+                <nav class="menu">
+                    <button class="menu-item active" type="button" data-page-target="dashboard">
+                        <span data-i18n="nav.dashboard">Dashboard</span>
+                    </button>
+
+                    <button class="menu-item" type="button" data-page-target="settings">
+                        <span data-i18n="nav.settings">Settings</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-block">
+                    <div class="sidebar-title">Runtime</div>
+
+                    <div class="mini-status">
+                        <span data-i18n="sidebar.php">PHP-CGI</span>
+                        <strong id="phpSidebarStatus" class="state-text danger" data-i18n="status.offline">Offline</strong>
+                    </div>
+
+                    <div class="mini-status">
+                        <span data-i18n="sidebar.caddy">Caddy</span>
+                        <strong id="caddySidebarStatus" class="state-text danger" data-i18n="status.offline">Offline</strong>
+                    </div>
+
+                    <div class="mini-status">
+                        <span data-i18n="sidebar.config">Config</span>
+                        <strong id="configSidebarStatus" class="state-text warning" data-i18n="status.missing">Missing</strong>
+                    </div>
+                </div>
+
+                <footer class="sidebar-footer">
+                    <strong data-i18n="credits.author">Created by Kaio</strong>
+                    <span data-i18n="credits.stack">Powered by Electron, Node.js, Caddy and PHP-CGI/FastCGI.</span>
+                </footer>
+            </aside>
+
+            <main class="app-main">
+                <section id="dashboardPage" class="page active">
+                    <div class="page-top">
+                        <div>
+                            <h2 data-i18n="dashboard.title">Service dashboard</h2>
+                            <p data-i18n="dashboard.description">Control your local Caddy and PHP-CGI environment from one place.</p>
+                        </div>
+
+                        <button id="openSettingsFromNotice" class="btn btn-light" type="button" data-i18n="dashboard.configure">
+                            Configure
+                        </button>
+                    </div>
+
+                    <section id="setupNotice" class="notice">
+                        <div class="notice-symbol">!</div>
+
+                        <div>
+                            <strong data-i18n="setup.title">Configuration required</strong>
+                            <span data-i18n="setup.description">Set the executable paths before starting the services.</span>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h3>Services</h3>
+                        </div>
+
+                        <div class="service-table">
+                            <div class="service-row">
+                                <div class="service-name">
+                                    <strong data-i18n="status.phpService">PHP-CGI service</strong>
+                                    <span id="phpEndpoint">127.0.0.1:9000</span>
+                                </div>
+
+                                <div id="phpServiceStatus" class="service-value">
+                                    <span class="dot dot-danger"></span>
+                                    <span data-i18n="status.offline">Offline</span>
+                                </div>
+                            </div>
+
+                            <div class="service-row">
+                                <div class="service-name">
+                                    <strong data-i18n="status.caddyService">Caddy server</strong>
+                                    <span id="caddyEndpoint">Caddyfile</span>
+                                </div>
+
+                                <div id="caddyServiceStatus" class="service-value">
+                                    <span class="dot dot-danger"></span>
+                                    <span data-i18n="status.offline">Offline</span>
+                                </div>
+                            </div>
+
+                            <div class="service-row">
+                                <div class="service-name">
+                                    <strong data-i18n="status.localUrl">Local URL</strong>
+                                    <span id="localUrlDisplay">http://localhost</span>
+                                </div>
+
+                                <div id="localUrlStatus" class="service-value muted">
+                                    <span class="dot dot-muted"></span>
+                                    <span data-i18n="status.notReady">Not ready</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel controls-panel">
+                        <div>
+                            <h3 data-i18n="controls.title">Controls</h3>
+                            <p data-i18n="controls.description">Start, stop or restart the configured services.</p>
+                        </div>
+
+                        <div class="control-actions">
+                            <button id="startServices" class="btn btn-primary" type="button" data-i18n="controls.start">
+                                Start
+                            </button>
+
+                            <button id="stopServices" class="btn btn-danger" type="button" data-i18n="controls.stop">
+                                Stop
+                            </button>
+
+                            <button id="restartServices" class="btn btn-light" type="button" data-i18n="controls.restart">
+                                Restart
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="console-section">
+                        <div class="console-heading">
+                            <div>
+                                <h3 data-i18n="logs.title">Console</h3>
+                                <p data-i18n="logs.description">Live output and application events.</p>
+                            </div>
+
+                            <button id="clearLogs" class="btn btn-light btn-small" type="button" data-i18n="logs.clear">
+                                Clear
+                            </button>
+                        </div>
+
+                        <div class="console-box">
+                            <div class="console-bar">
+                                <span data-i18n="logs.waiting">Waiting for services...</span>
+                            </div>
+
+                            <pre id="logsOutput">[system] Application loaded.</pre>
+                        </div>
+                    </section>
+                </section>
+
+                <section id="settingsPage" class="page">
+                    <div class="page-top">
+                        <div>
+                            <h2 data-i18n="settings.title">Settings</h2>
+                            <p data-i18n="settings.description">Configure paths, ports and local server options.</p>
+                        </div>
+
+                        <button class="btn btn-light" type="button" data-page-target="dashboard" data-i18n="settings.back">
+                            Back to dashboard
+                        </button>
+                    </div>
+
+                    <section id="settingsFeedback" class="settings-feedback hidden">
+                        <strong id="settingsFeedbackTitle"></strong>
+                        <span id="settingsFeedbackMessage"></span>
+                    </section>
+
+                    <section class="settings-panel">
+                        <div class="settings-group-title" data-i18n="settings.sectionExecutables">
+                            Executables
+                        </div>
+
+                        <div class="settings-grid">
+                            <label class="field field-full">
+                                <span data-i18n="settings.phpPath">PHP-CGI executable</span>
+
+                                <div class="input-action">
+                                    <input id="phpPath" type="text" placeholder="php-cgi.exe" spellcheck="false">
+                                    <button id="browsePhpPath" class="btn btn-light" type="button" data-i18n="settings.browse">Browse</button>
+                                </div>
+                            </label>
+
+                            <label class="field field-full">
+                                <span data-i18n="settings.caddyPath">Caddy executable</span>
+
+                                <div class="input-action">
+                                    <input id="caddyPath" type="text" placeholder="caddy.exe" spellcheck="false">
+                                    <button id="browseCaddyPath" class="btn btn-light" type="button" data-i18n="settings.browse">Browse</button>
+                                </div>
+                            </label>
+
+                            <label class="field field-full">
+                                <span data-i18n="settings.caddyWorkingDirectory">Caddy working directory</span>
+
+                                <div class="input-action">
+                                    <input id="caddyWorkingDirectory" type="text" placeholder="C:\caddy" spellcheck="false">
+                                    <button id="browseCaddyWorkingDirectory" class="btn btn-light" type="button" data-i18n="settings.browse">Browse</button>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="settings-group-title" data-i18n="settings.sectionServer">
+                            Server
+                        </div>
+
+                        <div class="settings-grid settings-grid-three">
+                            <label class="field">
+                                <span data-i18n="settings.phpHost">PHP host</span>
+                                <input id="phpHost" type="text" placeholder="127.0.0.1" spellcheck="false">
+                            </label>
+
+                            <label class="field">
+                                <span data-i18n="settings.phpPort">PHP port</span>
+                                <input id="phpPort" type="number" placeholder="9000">
+                            </label>
+
+                            <label class="field">
+                                <span data-i18n="settings.localUrl">Local URL</span>
+                                <input id="localUrl" type="text" placeholder="http://localhost" spellcheck="false">
+                            </label>
+                        </div>
+
+                        <div class="settings-actions">
+                            <button id="detectSettings" class="btn btn-light" type="button" data-i18n="settings.detect">
+                                Auto detect
+                            </button>
+
+                            <button id="testSettings" class="btn btn-light" type="button" data-i18n="settings.test">
+                                Test paths
+                            </button>
+
+                            <button id="saveSettings" class="btn btn-primary" type="button" data-i18n="settings.save">
+                                Save settings
+                            </button>
+                        </div>
+                    </section>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script src="./i18n.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/i18n-runtime.js"></script>
+    <script src="./js/logs.js"></script>
+    <script src="./js/status.js"></script>
+    <script src="./js/navigation.js"></script>
+    <script src="./js/settings-page.js"></script>
+    <script src="./js/services-page.js"></script>
+    <script src="./renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "caddy-php-manager",
+  "version": "1.0.0",
+  "description": "A simple local development manager for running and controlling Caddy with PHP-CGI/FastCGI.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iKaioC/caddy-php-manager.git"
+  },
+  "keywords": [
+    "caddy",
+    "php",
+    "fastcgi",
+    "cgi",
+    "manager",
+    "launcher",
+    "local-development",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/iKaioC/caddy-php-manager/issues"
+  },
+  "homepage": "https://github.com/iKaioC/caddy-php-manager#readme",
+  "devDependencies": {
+    "electron": "^41.3.0"
+  }
+}
