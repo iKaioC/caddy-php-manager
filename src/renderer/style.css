@@ -394,6 +394,7 @@ button:disabled {
 
 .settings-feedback-message li {
     margin: 2px 0;
+    white-space: pre-wrap;
 }
 
 .panel-header {
@@ -506,9 +507,15 @@ button:disabled {
 }
 
 .control-actions,
-.settings-actions {
+.settings-actions,
+.utility-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 7px;
+}
+
+.utility-actions {
+    padding: 12px;
 }
 
 .btn {
@@ -718,6 +725,7 @@ pre {
 
     .control-actions,
     .settings-actions,
+    .utility-actions,
     .input-action {
         grid-template-columns: 1fr;
         flex-direction: column;

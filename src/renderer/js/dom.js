@@ -34,10 +34,18 @@ window.AppDom = {
     stopServices: document.getElementById('stopServices'),
     restartServices: document.getElementById('restartServices'),
     refreshStatus: document.getElementById('refreshStatus'),
+    openLocalUrl: document.getElementById('openLocalUrl'),
 
     detectSettings: document.getElementById('detectSettings'),
     testSettings: document.getElementById('testSettings'),
     saveSettings: document.getElementById('saveSettings'),
+
+    openCaddyFolder: document.getElementById('openCaddyFolder'),
+    openSettingsFolder: document.getElementById('openSettingsFolder'),
+    openCaddyfile: document.getElementById('openCaddyfile'),
+    validateCaddyfile: document.getElementById('validateCaddyfile'),
+    formatCaddyfile: document.getElementById('formatCaddyfile'),
+    reloadCaddy: document.getElementById('reloadCaddy'),
 
     browsePhpPath: document.getElementById('browsePhpPath'),
     browseCaddyPath: document.getElementById('browseCaddyPath'),

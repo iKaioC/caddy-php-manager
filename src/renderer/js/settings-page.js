@@ -65,6 +65,27 @@ window.SettingsPage = (() => {
         dom.settingsFeedbackMessage.innerHTML = '';
     }
 
+    function showResult(result, successTitleKey = 'settingsFeedback.successTitle') {
+        const details = [];
+
+        if (Array.isArray(result.errors)) {
+            details.push(...result.errors);
+        }
+
+        if (result.output) {
+            details.push(result.output);
+        }
+
+        setFeedback(
+            result.ok ? 'success' : 'error',
+            result.ok
+                ? window.I18nRuntime.get(successTitleKey)
+                : window.I18nRuntime.get('settingsFeedback.errorTitle'),
+            result.message,
+            details
+        );
+    }
+
     async function load() {
         const result = await window.manager.loadSettings();
 
@@ -101,27 +122,41 @@ window.SettingsPage = (() => {
         clearFeedback();
     }
 
+    async function runSettingsAction(button, loadingKey, action, successTitleKey = 'settingsFeedback.successTitle') {
+        const result = await window.ButtonState.run(button, loadingKey, action);
+
+        showResult(result, successTitleKey);
+
+        return result;
+    }
+
     function bind() {
         dom.detectSettings.addEventListener('click', async () => {
-            const result = await window.manager.detectSettings();
+            await window.ButtonState.run(dom.detectSettings, 'settings.detecting', async () => {
+                const result = await window.manager.detectSettings();
 
-            if (!result.ok) {
-                return;
-            }
+                if (!result.ok) {
+                    return;
+                }
 
-            setFormSettings(result.settings);
+                setFormSettings(result.settings);
 
-            setFeedback(
-                'warning',
-                window.I18nRuntime.get('settingsFeedback.detectedTitle'),
-                window.I18nRuntime.get('settingsFeedback.detectedMessage')
-            );
+                setFeedback(
+                    'warning',
+                    window.I18nRuntime.get('settingsFeedback.detectedTitle'),
+                    window.I18nRuntime.get('settingsFeedback.detectedMessage')
+                );
 
-            window.LogsView.append(window.I18nRuntime.get('log.detectFinished'));
+                window.LogsView.append(window.I18nRuntime.get('log.detectFinished'));
+            });
         });
 
         dom.testSettings.addEventListener('click', async () => {
-            const result = await window.manager.testSettings(getFormSettings());
+            const result = await window.ButtonState.run(
+                dom.testSettings,
+                'settings.testing',
+                () => window.manager.testSettings(getFormSettings())
+            );
 
             setFeedback(
                 result.ok ? 'success' : 'error',
@@ -134,7 +169,11 @@ window.SettingsPage = (() => {
         });
 
         dom.saveSettings.addEventListener('click', async () => {
-            const result = await window.manager.saveSettings(getFormSettings());
+            const result = await window.ButtonState.run(
+                dom.saveSettings,
+                'settings.saving',
+                () => window.manager.saveSettings(getFormSettings())
+            );
 
             setFeedback(
                 result.ok ? 'success' : 'error',
@@ -151,6 +190,57 @@ window.SettingsPage = (() => {
 
             window.StatusView.setConfigReady(true);
             updateDashboardValues(result.settings);
+        });
+
+        dom.openCaddyFolder.addEventListener('click', () => {
+            runSettingsAction(
+                dom.openCaddyFolder,
+                'settings.opening',
+                () => window.manager.openCaddyFolder(getFormSettings())
+            );
+        });
+
+        dom.openSettingsFolder.addEventListener('click', () => {
+            runSettingsAction(
+                dom.openSettingsFolder,
+                'settings.opening',
+                () => window.manager.openSettingsFolder()
+            );
+        });
+
+        dom.openCaddyfile.addEventListener('click', () => {
+            runSettingsAction(
+                dom.openCaddyfile,
+                'settings.opening',
+                () => window.manager.openCaddyfile(getFormSettings())
+            );
+        });
+
+        dom.validateCaddyfile.addEventListener('click', () => {
+            runSettingsAction(
+                dom.validateCaddyfile,
+                'settings.validating',
+                () => window.manager.validateCaddyfile(getFormSettings()),
+                'settingsFeedback.caddyValidatedTitle'
+            );
+        });
+
+        dom.formatCaddyfile.addEventListener('click', () => {
+            runSettingsAction(
+                dom.formatCaddyfile,
+                'settings.formatting',
+                () => window.manager.formatCaddyfile(getFormSettings()),
+                'settingsFeedback.caddyFormattedTitle'
+            );
+        });
+
+        dom.reloadCaddy.addEventListener('click', () => {
+            runSettingsAction(
+                dom.reloadCaddy,
+                'settings.reloading',
+                () => window.manager.reloadCaddy(getFormSettings()),
+                'settingsFeedback.caddyReloadedTitle'
+            );
         });
 
         dom.browsePhpPath.addEventListener('click', () => {

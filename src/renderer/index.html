@@ -166,6 +166,10 @@
                             <button id="refreshStatus" class="btn btn-light" type="button" data-i18n="controls.refresh">
                                 Refresh status
                             </button>
+
+                            <button id="openLocalUrl" class="btn btn-light" type="button" data-i18n="controls.openLocalUrl">
+                                Open local URL
+                            </button>
                         </div>
                     </section>
 
@@ -263,6 +267,42 @@
                             </label>
                         </div>
 
+                        <div class="settings-group-title" data-i18n="settings.sectionQuickActions">
+                            Quick actions
+                        </div>
+
+                        <div class="utility-actions">
+                            <button id="openCaddyFolder" class="btn btn-light" type="button" data-i18n="settings.openCaddyFolder">
+                                Open Caddy folder
+                            </button>
+
+                            <button id="openSettingsFolder" class="btn btn-light" type="button" data-i18n="settings.openSettingsFolder">
+                                Open settings folder
+                            </button>
+
+                            <button id="openCaddyfile" class="btn btn-light" type="button" data-i18n="settings.openCaddyfile">
+                                Open Caddyfile
+                            </button>
+                        </div>
+
+                        <div class="settings-group-title" data-i18n="settings.sectionCaddyTools">
+                            Caddy tools
+                        </div>
+
+                        <div class="utility-actions">
+                            <button id="validateCaddyfile" class="btn btn-light" type="button" data-i18n="settings.validateCaddyfile">
+                                Validate Caddyfile
+                            </button>
+
+                            <button id="formatCaddyfile" class="btn btn-light" type="button" data-i18n="settings.formatCaddyfile">
+                                Format Caddyfile
+                            </button>
+
+                            <button id="reloadCaddy" class="btn btn-light" type="button" data-i18n="settings.reloadCaddy">
+                                Reload Caddy
+                            </button>
+                        </div>
+
                         <div class="settings-actions">
                             <button id="detectSettings" class="btn btn-light" type="button" data-i18n="settings.detect">
                                 Auto detect
@@ -285,6 +325,7 @@
     <script src="./i18n.js"></script>
     <script src="./js/dom.js"></script>
     <script src="./js/i18n-runtime.js"></script>
+    <script src="./js/button-state.js"></script>
     <script src="./js/logs.js"></script>
     <script src="./js/status.js"></script>
     <script src="./js/navigation.js"></script>
