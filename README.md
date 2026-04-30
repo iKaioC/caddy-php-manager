@@ -1,33 +1,57 @@
 # Caddy PHP Manager
 
-A desktop manager for running and controlling Caddy with PHP-CGI/FastCGI in local development environments.
+A desktop manager for running and controlling **Caddy** with **PHP-CGI/FastCGI** in local development environments.
 
-Created by Kaio.
+> Status: **Alpha / Development Preview**
 
-## Status
+Caddy PHP Manager is designed to make it easier to run a local PHP development environment using Caddy and PHP-CGI from a simple desktop interface.
 
-This project is currently in early development/alpha.
+Created by **Kaio**.
 
-The current version already includes:
+## Features
+
+The current alpha version includes:
 
 * Desktop interface built with Electron
 * English and Portuguese Brazil language support
 * Settings screen
-* PHP-CGI and Caddy path configuration
+* PHP-CGI executable path configuration
+* Caddy executable path configuration
+* Caddy working directory configuration
 * Auto detection for common executable paths
 * File and folder picker for paths
-* Settings saved locally
+* Local settings saved using Electron's user data directory
 * Start, stop and restart services
 * Runtime status display
+* Detection of occupied PHP and Caddy ports
+* Detection of services already running outside the app
 * Live console logs
+* Open local URL action
+* Open Caddy folder action
+* Open settings folder action
+* Open Caddyfile action
+* Caddyfile validation using `caddy validate`
+* Caddyfile formatting using `caddy fmt --overwrite`
+* Caddy reload support
 
 ## Requirements
+
+To run the project locally, you need:
 
 * Node.js
 * Caddy
 * PHP with `php-cgi.exe`
 
-## Development
+This project is currently focused on Windows local development environments.
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/iKaioC/caddy-php-manager.git
+cd caddy-php-manager
+```
 
 Install dependencies:
 
@@ -35,11 +59,24 @@ Install dependencies:
 npm install
 ```
 
-Run the app:
+## Usage
+
+Run the app in development mode:
 
 ```bash
 npm run dev
 ```
+
+After opening the app:
+
+1. Go to **Settings**.
+2. Configure the PHP-CGI executable path.
+3. Configure the Caddy executable path.
+4. Select the Caddy working directory.
+5. Make sure the selected directory contains a `Caddyfile`.
+6. Configure the PHP host, PHP port and local URL.
+7. Save the settings.
+8. Start the services from the dashboard.
 
 ## Configuration
 
@@ -60,7 +97,17 @@ The settings screen currently supports:
 * PHP port
 * Local URL
 
-## Security note
+## Caddy tools
+
+The app includes basic Caddy helper actions:
+
+* Validate the selected `Caddyfile`
+* Format the selected `Caddyfile`
+* Reload Caddy using the selected configuration
+
+These actions use the configured `caddy.exe` path and the selected Caddy working directory.
+
+## Security
 
 This application starts local executables selected by the user.
 
@@ -71,27 +118,46 @@ Only configure trusted binaries, especially:
 
 Do not select executables from unknown or untrusted sources.
 
+Caddy PHP Manager is intended for local development environments. It should not be treated as a production process manager.
+
 ## Roadmap
 
-Planned improvements:
+Planned improvements are tracked in [ROADMAP.md](ROADMAP.md).
 
-* Validate executable names
-* Validate `Caddyfile` presence
-* Detect occupied ports
-* Detect services already running outside the app
-* Improve Caddy log formatting
-* Add an Open Local URL button
-* Add Caddyfile validation using `caddy validate`
-* Add Caddyfile formatting using `caddy fmt --overwrite`
-* Add Caddy reload support
-* Add log copy/export options
-* Add Windows build support
-* Add issue templates
-* Add screenshots
+Some planned areas include:
+
+* Better Caddy log formatting
+* Log copy and export options
+* System tray support
+* Startup behavior options
+* Better Settings organization
+* Improved documentation
+* Windows portable build
+* Windows installer in the future
+
+## Development
+
+Run the project locally:
+
+```bash
+npm run dev
+```
+
+The app entry point is:
+
+```txt
+src/main.js
+```
+
+The Electron renderer files are located in:
+
+```txt
+src/renderer/
+```
 
 ## Credits
 
-Created by Kaio.
+Created by **Kaio**.
 
 Built with:
 
@@ -102,4 +168,4 @@ Built with:
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
