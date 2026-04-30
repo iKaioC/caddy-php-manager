@@ -32,19 +32,37 @@ window.SettingsPage = (() => {
         dom.localUrlDisplay.textContent = settings.localUrl || 'http://localhost';
     }
 
-    function setFeedback(type, title, message) {
+    function setFeedback(type, title, message, details = []) {
         dom.settingsFeedback.classList.remove('hidden', 'success', 'error', 'warning');
         dom.settingsFeedback.classList.add(type);
 
         dom.settingsFeedbackTitle.textContent = title;
-        dom.settingsFeedbackMessage.textContent = message;
+        dom.settingsFeedbackMessage.innerHTML = '';
+
+        if (message) {
+            const paragraph = document.createElement('p');
+            paragraph.textContent = message;
+            dom.settingsFeedbackMessage.appendChild(paragraph);
+        }
+
+        if (Array.isArray(details) && details.length > 0) {
+            const list = document.createElement('ul');
+
+            details.forEach((detail) => {
+                const item = document.createElement('li');
+                item.textContent = detail;
+                list.appendChild(item);
+            });
+
+            dom.settingsFeedbackMessage.appendChild(list);
+        }
     }
 
     function clearFeedback() {
         dom.settingsFeedback.classList.add('hidden');
         dom.settingsFeedback.classList.remove('success', 'error', 'warning');
         dom.settingsFeedbackTitle.textContent = '';
-        dom.settingsFeedbackMessage.textContent = '';
+        dom.settingsFeedbackMessage.innerHTML = '';
     }
 
     async function load() {
@@ -110,7 +128,8 @@ window.SettingsPage = (() => {
                 result.ok
                     ? window.I18nRuntime.get('settingsFeedback.successTitle')
                     : window.I18nRuntime.get('settingsFeedback.errorTitle'),
-                result.message
+                result.ok ? result.message : '',
+                result.ok ? [] : result.errors
             );
         });
 
@@ -122,7 +141,8 @@ window.SettingsPage = (() => {
                 result.ok
                     ? window.I18nRuntime.get('settingsFeedback.savedTitle')
                     : window.I18nRuntime.get('settingsFeedback.errorTitle'),
-                result.message
+                result.ok ? result.message : '',
+                result.ok ? [] : result.errors
             );
 
             if (!result.ok) {

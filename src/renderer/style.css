@@ -340,7 +340,7 @@ button {
 
 .settings-feedback {
     display: grid;
-    gap: 3px;
+    gap: 6px;
     padding: 10px 12px;
 }
 
@@ -367,10 +367,23 @@ button {
     font-size: 13px;
 }
 
-.settings-feedback span {
+.settings-feedback-message {
     color: var(--text-soft);
     font-size: 12px;
     line-height: 1.45;
+}
+
+.settings-feedback-message p {
+    margin: 0;
+}
+
+.settings-feedback-message ul {
+    margin: 3px 0 0;
+    padding-left: 18px;
+}
+
+.settings-feedback-message li {
+    margin: 2px 0;
 }
 
 .panel-header {
