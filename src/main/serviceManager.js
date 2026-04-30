@@ -9,14 +9,17 @@ class ServiceManager extends EventEmitter {
 
         this.phpProcess = null;
         this.caddyProcess = null;
+
+        this.phpState = 'offline';
+        this.caddyState = 'offline';
     }
 
     getInternalStatus() {
         return {
             php: Boolean(this.phpProcess),
             caddy: Boolean(this.caddyProcess),
-            phpState: this.phpProcess ? 'online' : 'offline',
-            caddyState: this.caddyProcess ? 'online' : 'offline'
+            phpState: this.phpState,
+            caddyState: this.caddyState
         };
     }
 
@@ -41,6 +44,16 @@ class ServiceManager extends EventEmitter {
         }
 
         return status;
+    }
+
+    setPhpState(state) {
+        this.phpState = state;
+        this.emitStatus();
+    }
+
+    setCaddyState(state) {
+        this.caddyState = state;
+        this.emitStatus();
     }
 
     emitStatus(status = null) {
@@ -68,13 +81,10 @@ class ServiceManager extends EventEmitter {
         this.startPhp(settings);
         this.startCaddy(settings);
 
-        const status = this.getInternalStatus();
-        this.emitStatus(status);
-
         return {
             ok: true,
             message: '[services] Services started.',
-            status
+            status: this.getInternalStatus()
         };
     }
 
@@ -84,7 +94,6 @@ class ServiceManager extends EventEmitter {
 
         if (!this.phpProcess && await isPortOpen(settings.phpHost, settings.phpPort)) {
             status.phpState = 'external';
-
             errors.push(`PHP-CGI port ${settings.phpPort} is already in use.`);
         }
 
@@ -98,7 +107,6 @@ class ServiceManager extends EventEmitter {
 
                 if (openCaddyPorts.length > 0) {
                     status.caddyState = 'external';
-
                     errors.push(`Caddy port ${openCaddyPorts.join(', ')} is already in use.`);
                 }
             }
@@ -122,9 +130,18 @@ class ServiceManager extends EventEmitter {
 
         const endpoint = `${settings.phpHost}:${settings.phpPort}`;
 
-        this.phpProcess = spawn(settings.phpPath, ['-b', endpoint], {
-            windowsHide: true
-        });
+        this.setPhpState('starting');
+
+        try {
+            this.phpProcess = spawn(settings.phpPath, ['-b', endpoint], {
+                windowsHide: true
+            });
+        } catch (error) {
+            this.phpProcess = null;
+            this.setPhpState('error');
+            this.emitLog(`[php:error] ${error.message}`);
+            return;
+        }
 
         this.phpProcess.stdout.on('data', (data) => {
             this.forwardProcessOutput('php', data);
@@ -134,13 +151,22 @@ class ServiceManager extends EventEmitter {
             this.forwardProcessOutput('php:error', data);
         });
 
-        this.phpProcess.on('exit', (code) => {
+        this.phpProcess.once('error', (error) => {
+            this.emitLog(`[php:error] ${error.message}`);
+            this.phpProcess = null;
+            this.setPhpState('error');
+        });
+
+        this.phpProcess.once('exit', (code) => {
+            const wasStopping = this.phpState === 'stopping' || this.phpState === 'restarting';
+
             this.emitLog(`[php] PHP-CGI stopped with code ${code}.`);
             this.phpProcess = null;
-            this.emitStatus();
+            this.setPhpState(wasStopping ? 'offline' : 'error');
         });
 
         this.emitLog(`[php] PHP-CGI started on ${endpoint}.`);
+        this.setPhpState('online');
     }
 
     startCaddy(settings) {
@@ -149,10 +175,19 @@ class ServiceManager extends EventEmitter {
             return;
         }
 
-        this.caddyProcess = spawn(settings.caddyPath, ['run'], {
-            cwd: settings.caddyWorkingDirectory,
-            windowsHide: true
-        });
+        this.setCaddyState('starting');
+
+        try {
+            this.caddyProcess = spawn(settings.caddyPath, ['run'], {
+                cwd: settings.caddyWorkingDirectory,
+                windowsHide: true
+            });
+        } catch (error) {
+            this.caddyProcess = null;
+            this.setCaddyState('error');
+            this.emitLog(`[caddy:error] ${error.message}`);
+            return;
+        }
 
         this.caddyProcess.stdout.on('data', (data) => {
             this.forwardProcessOutput('caddy', data);
@@ -162,50 +197,106 @@ class ServiceManager extends EventEmitter {
             this.forwardProcessOutput('caddy', data);
         });
 
-        this.caddyProcess.on('exit', (code) => {
+        this.caddyProcess.once('error', (error) => {
+            this.emitLog(`[caddy:error] ${error.message}`);
+            this.caddyProcess = null;
+            this.setCaddyState('error');
+        });
+
+        this.caddyProcess.once('exit', (code) => {
+            const wasStopping = this.caddyState === 'stopping' || this.caddyState === 'restarting';
+
             this.emitLog(`[caddy] Caddy stopped with code ${code}.`);
             this.caddyProcess = null;
-            this.emitStatus();
+            this.setCaddyState(wasStopping ? 'offline' : 'error');
         });
 
         this.emitLog('[caddy] Caddy started.');
+        this.setCaddyState('online');
     }
 
-    stopAll(options = {}) {
+    async stopAll(options = {}) {
         const silent = Boolean(options.silent);
+        const restarting = Boolean(options.restarting);
+
+        const stopTasks = [];
 
         if (this.phpProcess) {
-            this.phpProcess.kill();
-            this.phpProcess = null;
+            this.setPhpState(restarting ? 'restarting' : 'stopping');
 
             if (!silent) {
-                this.emitLog('[php] Stop requested.');
+                this.emitLog(restarting ? '[php] Restart requested.' : '[php] Stop requested.');
             }
+
+            stopTasks.push(this.stopProcess('php'));
         }
 
         if (this.caddyProcess) {
-            this.caddyProcess.kill();
-            this.caddyProcess = null;
+            this.setCaddyState(restarting ? 'restarting' : 'stopping');
 
             if (!silent) {
-                this.emitLog('[caddy] Stop requested.');
+                this.emitLog(restarting ? '[caddy] Restart requested.' : '[caddy] Stop requested.');
             }
+
+            stopTasks.push(this.stopProcess('caddy'));
         }
 
-        const status = this.getInternalStatus();
-        this.emitStatus(status);
+        if (stopTasks.length === 0) {
+            this.emitStatus();
+
+            return {
+                ok: true,
+                message: '[services] Services already stopped.',
+                status: this.getInternalStatus()
+            };
+        }
+
+        await Promise.all(stopTasks);
 
         return {
             ok: true,
             message: '[services] Services stopped.',
-            status
+            status: this.getInternalStatus()
         };
     }
 
-    async restart(settings) {
-        this.stopAll();
+    stopProcess(serviceName) {
+        const processRef = serviceName === 'php'
+            ? this.phpProcess
+            : this.caddyProcess;
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        if (!processRef) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            let resolved = false;
+
+            const finish = () => {
+                if (resolved) {
+                    return;
+                }
+
+                resolved = true;
+                resolve();
+            };
+
+            processRef.once('exit', finish);
+
+            try {
+                processRef.kill();
+            } catch {
+                finish();
+            }
+
+            setTimeout(finish, 3000);
+        });
+    }
+
+    async restart(settings) {
+        await this.stopAll({ restarting: true });
+
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         const result = await this.start(settings);
 

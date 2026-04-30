@@ -17,8 +17,16 @@ window.StatusView = (() => {
         return status === 'external';
     }
 
+    function isBusy(status) {
+        return status === 'starting' || status === 'stopping' || status === 'restarting';
+    }
+
     function hasExternalService() {
         return isExternal(state.runtime.phpState) || isExternal(state.runtime.caddyState);
+    }
+
+    function hasBusyService() {
+        return isBusy(state.runtime.phpState) || isBusy(state.runtime.caddyState);
     }
 
     function hasManagedServiceOnline() {
@@ -64,39 +72,68 @@ window.StatusView = (() => {
 
     function renderControls() {
         const externalDetected = hasExternalService();
+        const busy = hasBusyService();
         const managedOnline = hasManagedServiceOnline();
         const offline = allServicesOffline();
 
-        dom.startServices.disabled = externalDetected || !state.configReady || !offline;
-        dom.stopServices.disabled = externalDetected || !managedOnline;
-        dom.restartServices.disabled = externalDetected || !managedOnline;
+        dom.startServices.disabled = externalDetected || busy || !state.configReady || !offline;
+        dom.stopServices.disabled = externalDetected || busy || !managedOnline;
+        dom.restartServices.disabled = externalDetected || busy || !managedOnline;
+        dom.refreshStatus.disabled = busy;
 
-        dom.controlsDescription.textContent = externalDetected
-            ? window.I18nRuntime.get('controls.externalDescription')
-            : window.I18nRuntime.get('controls.description');
+        if (externalDetected) {
+            dom.controlsDescription.textContent = window.I18nRuntime.get('controls.externalDescription');
+            return;
+        }
+
+        if (busy) {
+            dom.controlsDescription.textContent = window.I18nRuntime.get('controls.busyDescription');
+            return;
+        }
+
+        dom.controlsDescription.textContent = window.I18nRuntime.get('controls.description');
     }
 
     function getStatusViewModel(status) {
-        if (status === 'online') {
-            return {
+        const i18n = window.I18nRuntime;
+
+        const statusMap = {
+            online: {
                 className: 'success',
                 dotClass: 'dot-success',
-                label: window.I18nRuntime.get('status.online')
-            };
-        }
-
-        if (status === 'external') {
-            return {
+                label: i18n.get('status.online')
+            },
+            starting: {
                 className: 'warning',
                 dotClass: 'dot-warning',
-                label: window.I18nRuntime.get('status.external')
-            };
-        }
+                label: i18n.get('status.starting')
+            },
+            stopping: {
+                className: 'warning',
+                dotClass: 'dot-warning',
+                label: i18n.get('status.stopping')
+            },
+            restarting: {
+                className: 'warning',
+                dotClass: 'dot-warning',
+                label: i18n.get('status.restarting')
+            },
+            external: {
+                className: 'warning',
+                dotClass: 'dot-warning',
+                label: i18n.get('status.external')
+            },
+            error: {
+                className: 'danger',
+                dotClass: 'dot-danger',
+                label: i18n.get('status.error')
+            }
+        };
 
-        return {
+        return statusMap[status] || {
             className: 'danger',
             dotClass: 'dot-danger',
-            label: window.I18nRuntime.get('status.offline')
+            label: i18n.get('status.offline')
         };
     }
 
