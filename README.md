@@ -97,6 +97,24 @@ The settings screen currently supports:
 * PHP port
 * Local URL
 
+## Example Caddyfile
+
+A minimal `Caddyfile` for a local PHP project:
+
+```txt
+localhost:8080 {
+    root * ./public
+    php_fastcgi 127.0.0.1:9000
+    file_server
+}
+```
+
+* `root` points to your project's public folder.
+* `php_fastcgi` must match the **PHP host** and **PHP port** configured in Settings.
+* The address (`localhost:8080`) should match the **Local URL** in Settings.
+
+This setup is used in the local development environment of a retro game server project.
+
 ## Caddy tools
 
 The app includes basic Caddy helper actions:
